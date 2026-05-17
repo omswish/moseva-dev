@@ -113,6 +113,7 @@ moseva-dev/
     ├── api_endpoints.md          # REST API Route Documentation
     ├── authentication_specification.md # JWT & Google OAuth Handshakes
     ├── frontend_architecture.md  # SPA Layout Documentation
+    ├── mobile_architecture.md    # React Native Client Layout Documentation
     ├── backend_architecture.md   # Express MVC Routing Documentation
     └── folder_structure.md       # This file
 ```
