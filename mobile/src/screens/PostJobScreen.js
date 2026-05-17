@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, ActivityIndicator, Alert } from 'react-native';
 import axios from 'axios';
 
-const API_URL = 'http://10.0.2.2:5001/api/v1';
+const API_URL = 'https://moseva-backend-98662134377.us-central1.run.app/api/v1';
 
 export default function PostJobScreen({ navigation }) {
   const [title, setTitle] = useState('');

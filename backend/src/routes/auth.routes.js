@@ -9,6 +9,7 @@ const router = express.Router();
 // Public routes
 router.post('/register', validate(authValidator.register), authController.register);
 router.post('/login', validate(authValidator.login), authController.login);
+router.post('/google', authController.googleLogin);
 router.post('/refresh', validate(authValidator.refresh), authController.refresh);
 router.post('/logout', authController.logout);
 

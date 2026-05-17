@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
 export const AuthContext = createContext();
-const API_URL = 'http://10.0.2.2:5001/api/v1';
+const API_URL = 'https://moseva-backend-98662134377.us-central1.run.app/api/v1';
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -73,6 +73,26 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const googleLogin = async (idToken, role = 'patron') => {
+    try {
+      const res = await axios.post(`${API_URL}/auth/google`, { idToken, role });
+      const { accessToken: token, user: userData } = res.data.data;
+      
+      setUser(userData);
+      setToken(token);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      
+      await AsyncStorage.setItem('userToken', token);
+      await AsyncStorage.setItem('userData', JSON.stringify(userData));
+      return { success: true };
+    } catch (err) {
+      return { 
+        success: false, 
+        message: err.response?.data?.message || 'Google Login failed.' 
+      };
+    }
+  };
+
   const logout = async () => {
     setUser(null);
     setToken(null);
@@ -82,7 +102,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, isLoading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, token, isLoading, login, register, googleLogin, logout }}>
       {children}
     </AuthContext.Provider>
   );

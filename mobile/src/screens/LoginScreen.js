@@ -1,12 +1,51 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, ActivityIndicator, Alert, SafeAreaView } from 'react-native';
 import { AuthContext } from '../context/AuthContext';
+import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 
 export default function LoginScreen({ navigation }) {
-  const { login } = useContext(AuthContext);
+  const { login, googleLogin } = useContext(AuthContext);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+
+  useEffect(() => {
+    GoogleSignin.configure({
+      webClientId: '98662134377-p01aj6dk19vr163pmdi0uq9d74hvqm7p.apps.googleusercontent.com',
+    });
+  }, []);
+
+  const handleGoogleLogin = async () => {
+    try {
+      setGoogleLoading(true);
+      await GoogleSignin.hasPlayServices();
+      const userInfo = await GoogleSignin.signIn();
+      // Google API changed; token is sometimes nested or directly on userInfo
+      const idToken = userInfo.idToken || (userInfo.data && userInfo.data.idToken);
+      
+      if (idToken) {
+        const result = await googleLogin(idToken, 'patron');
+        if (!result.success) {
+          Alert.alert('Google Login Failed', result.message);
+        }
+      } else {
+        Alert.alert('Error', 'Failed to retrieve Google ID Token.');
+      }
+    } catch (error) {
+      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+        // user cancelled the login flow
+      } else if (error.code === statusCodes.IN_PROGRESS) {
+        // operation (e.g. sign in) is in progress already
+      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        Alert.alert('Error', 'Play services not available or outdated.');
+      } else {
+        Alert.alert('Error', error.message || 'Unknown error occurred.');
+      }
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -55,8 +94,18 @@ export default function LoginScreen({ navigation }) {
             />
           </View>
 
-          <TouchableOpacity style={styles.primaryButton} onPress={handleLogin} disabled={loading}>
+          <TouchableOpacity style={styles.primaryButton} onPress={handleLogin} disabled={loading || googleLoading}>
             {loading ? <ActivityIndicator color="#ffffff" /> : <Text style={styles.primaryButtonText}>Sign In</Text>}
+          </TouchableOpacity>
+
+          <View style={styles.dividerContainer}>
+            <View style={styles.divider} />
+            <Text style={styles.dividerText}>OR</Text>
+            <View style={styles.divider} />
+          </View>
+
+          <TouchableOpacity style={styles.googleButton} onPress={handleGoogleLogin} disabled={loading || googleLoading}>
+            {googleLoading ? <ActivityIndicator color="#000000" /> : <Text style={styles.googleButtonText}>Continue with Google</Text>}
           </TouchableOpacity>
         </View>
 
@@ -126,6 +175,35 @@ const styles = StyleSheet.create({
   primaryButtonText: {
     color: '#ffffff',
     fontSize: 18,
+    fontWeight: 'bold',
+  },
+  dividerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 20,
+  },
+  divider: {
+    flex: 1,
+    height: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  dividerText: {
+    color: '#6b7280',
+    paddingHorizontal: 10,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  googleButton: {
+    backgroundColor: '#ffffff',
+    paddingVertical: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+  },
+  googleButtonText: {
+    color: '#000000',
+    fontSize: 16,
     fontWeight: 'bold',
   },
   switchButton: {

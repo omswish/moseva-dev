@@ -28,9 +28,13 @@ async function connectDatabase() {
     // Dynamically require models to register relationships and sync tables
     const models = require('../models');
     
-    // Auto-sync tables in development
-    await sequelize.sync({ alter: true });
-    console.log('Database tables synchronized successfully.');
+    // Auto-sync tables only in development to prevent destructive changes in production
+    if (process.env.NODE_ENV === 'development') {
+      await sequelize.sync({ alter: true });
+      console.log('Database tables synchronized successfully.');
+    } else {
+      console.log('Production mode: skipping automatic table sync.');
+    }
 
     // Seed default categories if none exist
     const categoryCount = await models.Category.count();

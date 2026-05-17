@@ -26,6 +26,21 @@ exports.login = catchAsync(async (req, res) => {
   res.json({ success: true, data: { user, accessToken } });
 });
 
+exports.googleLogin = catchAsync(async (req, res) => {
+  const { idToken, role } = req.body;
+  if (!idToken) {
+    throw new ApiError(400, 'NO_ID_TOKEN', 'Google ID Token is required');
+  }
+  const { user, accessToken, refreshToken } = await authService.googleLogin(idToken, role);
+  res.cookie('refreshToken', refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    maxAge: 7 * 24 * 60 * 60 * 1000
+  });
+  res.json({ success: true, data: { user, accessToken } });
+});
+
 exports.refresh = catchAsync(async (req, res) => {
   const refreshToken = req.cookies.refreshToken || req.body.refreshToken;
   if (!refreshToken) {

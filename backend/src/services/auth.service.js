@@ -1,6 +1,7 @@
 // src/services/auth.service.js
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+const { OAuth2Client } = require('google-auth-library');
 const User = require('../models/User');
 const RefreshToken = require('../models/RefreshToken');
 const ApiError = require('../utils/ApiError');
@@ -50,6 +51,40 @@ class AuthService {
     if (!user.isActive) {
       throw new ApiError(403, 'USER_INACTIVE', 'Account is deactivated');
     }
+    const tokens = await this.generateTokens(user);
+    return { user, ...tokens };
+  }
+
+  async googleLogin(idToken, role = 'patron') {
+    const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+    const ticket = await client.verifyIdToken({
+      idToken,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+    const { email, name, picture } = payload;
+
+    let user = await User.findOne({ where: { email } });
+    
+    if (!user) {
+      // Create a new user if one doesn't exist
+      const username = `user_${crypto.randomBytes(4).toString('hex')}`;
+      user = await User.create({
+        username,
+        email,
+        passwordHash: crypto.randomBytes(16).toString('hex'), // Random password for Google users
+        role,
+        firstName: name ? name.split(' ')[0] : null,
+        lastName: name ? name.split(' ').slice(1).join(' ') : null,
+        avatarUrl: picture,
+        isVerified: true
+      });
+    }
+
+    if (!user.isActive) {
+      throw new ApiError(403, 'USER_INACTIVE', 'Account is deactivated');
+    }
+
     const tokens = await this.generateTokens(user);
     return { user, ...tokens };
   }
