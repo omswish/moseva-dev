@@ -26,6 +26,10 @@ class AuthService {
     if (existing) {
       throw new ApiError(409, 'EMAIL_EXISTS', 'Email already registered');
     }
+    const existingUsername = await User.findOne({ where: { username: userData.username } });
+    if (existingUsername) {
+      throw new ApiError(409, 'USERNAME_EXISTS', 'Username is already taken');
+    }
     const user = await User.create({
       ...userData,
       passwordHash: userData.password // will be hashed by model hook

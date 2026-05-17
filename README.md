@@ -105,6 +105,11 @@ CREATE DATABASE service_marketplace;
    npm run dev
    ```
    *The server will boot on `http://localhost:5000`, automatically synchronize your database tables, and seed the categories.*
+5. **Seed Demo Data (Tikiri, Odisha villages)**:
+   To instantly populate your database with realistic Indian profiles, jobs, and bids for testing:
+   ```bash
+   node seed-demo-data.js
+   ```
 
 ### Step 3: Launch the Frontend
 1. Open a new terminal window and navigate to the `frontend/` directory:

@@ -7,7 +7,7 @@ let socket = null;
  * @param {string} token Access token
  */
 export const connectSocket = (token) => {
-  const socketUrl = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000';
+  const socketUrl = import.meta.env.VITE_SOCKET_URL || 'http://localhost:5001';
   
   if (!socket) {
     socket = io(socketUrl, {

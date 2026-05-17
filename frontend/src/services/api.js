@@ -11,7 +11,7 @@ export const injectStore = (_store) => {
 };
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1',
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5001/api/v1',
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json'
@@ -43,7 +43,7 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const refreshBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+        const refreshBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5001/api/v1';
         
         // Call refresh endpoint (sends httpOnly cookies automatically)
         const response = await axios.post(

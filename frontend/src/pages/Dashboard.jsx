@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { fetchBookings, acceptBooking, rejectBooking, completeBooking } from '../store/slices/bookingSlice';
 import { createJob, fetchJobs } from '../store/slices/jobSlice';
+import { createConversation, selectConversation } from '../store/slices/chatSlice';
 import api from '../services/api';
 
 export default function Dashboard() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
   const { bookings, loading: bookingsLoading } = useSelector((state) => state.bookings);
   const { jobs, loading: jobsLoading } = useSelector((state) => state.jobs);
@@ -85,6 +88,26 @@ export default function Dashboard() {
 
   const handleCompleteGig = (bookingId) => {
     dispatch(completeBooking(bookingId));
+  };
+
+  const handleChat = async (booking) => {
+    const recipientId = isPatron ? booking.servicePartnerId : booking.patronId;
+    if (!recipientId) return;
+
+    try {
+      const resultAction = await dispatch(createConversation({ 
+        participant2Id: recipientId, 
+        bookingId: booking.bookingId 
+      }));
+      
+      if (createConversation.fulfilled.match(resultAction)) {
+        const conversation = resultAction.payload;
+        dispatch(selectConversation(conversation.conversationId));
+        navigate('/chat');
+      }
+    } catch (err) {
+      console.error('Failed to start chat', err);
+    }
   };
 
   const isPatron = user?.role === 'patron';
@@ -195,6 +218,21 @@ export default function Dashboard() {
 
                   {/* Actions based on Status */}
                   <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
+                    <button 
+                      className="btn btn-secondary" 
+                      style={{ 
+                        padding: '0.45rem 1.25rem', 
+                        fontSize: '0.85rem', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '0.4rem',
+                        borderColor: 'hsla(var(--primary), 0.3)'
+                      }} 
+                      onClick={() => handleChat(b)}
+                    >
+                      💬 Chat with {isPatron ? 'Partner' : 'Client'}
+                    </button>
+
                     {isPatron && b.status === 'pending' && (
                       <>
                         <button className="btn btn-secondary" style={{ padding: '0.45rem 1rem', fontSize: '0.85rem' }} onClick={() => handleRejectProposal(b.bookingId)}>

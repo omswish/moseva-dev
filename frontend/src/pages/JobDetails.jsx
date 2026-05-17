@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchJobById, clearCurrentJob } from '../store/slices/jobSlice';
 import { createBooking } from '../store/slices/bookingSlice';
+import { createConversation, selectConversation } from '../store/slices/chatSlice';
 
 export default function JobDetails() {
   const { jobId } = useParams();
@@ -39,6 +40,24 @@ export default function JobDetails() {
 
     if (createBooking.fulfilled.match(resultAction)) {
       setAppliedSuccessfully(true);
+    }
+  };
+
+  const handleChatWithPatron = async () => {
+    if (!currentJob?.patronId) return;
+
+    try {
+      const resultAction = await dispatch(createConversation({ 
+        participant2Id: currentJob.patronId 
+      }));
+      
+      if (createConversation.fulfilled.match(resultAction)) {
+        const conversation = resultAction.payload;
+        dispatch(selectConversation(conversation.conversationId));
+        navigate('/chat');
+      }
+    } catch (err) {
+      console.error('Failed to start chat', err);
     }
   };
 
@@ -210,6 +229,25 @@ export default function JobDetails() {
                 </span>
               </div>
             </div>
+            {isServicePartner && (
+              <button 
+                className="btn btn-secondary" 
+                style={{ 
+                  marginTop: '1rem', 
+                  width: '100%', 
+                  padding: '0.45rem 1rem', 
+                  fontSize: '0.85rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.35rem',
+                  borderColor: 'hsla(var(--primary), 0.3)'
+                }}
+                onClick={handleChatWithPatron}
+              >
+                💬 Chat with Patron
+              </button>
+            )}
           </div>
 
           {currentJob.deadline && (
