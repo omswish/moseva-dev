@@ -27,7 +27,7 @@ const User = sequelize.define('User', {
     field: 'password_hash'
   },
   role: {
-    type: DataTypes.ENUM('steward', 'patron', 'service_partner'),
+    type: DataTypes.ENUM('superadmin', 'admin', 'steward', 'patron', 'service_partner'),
     defaultValue: 'patron',
     allowNull: false
   },
@@ -37,7 +37,17 @@ const User = sequelize.define('User', {
   avatarUrl: { type: DataTypes.STRING(500), field: 'avatar_url' },
   bio: { type: DataTypes.TEXT },
   isVerified: { type: DataTypes.BOOLEAN, defaultValue: false, field: 'is_verified' },
-  isActive: { type: DataTypes.BOOLEAN, defaultValue: true, field: 'is_active' }
+  isActive: { type: DataTypes.BOOLEAN, defaultValue: true, field: 'is_active' },
+  authProvider: {
+    type: DataTypes.ENUM('local', 'google'),
+    defaultValue: 'local',
+    field: 'auth_provider'
+  },
+  googleId: {
+    type: DataTypes.STRING(255),
+    allowNull: true,
+    field: 'google_id'
+  }
 }, {
   tableName: 'users',
   timestamps: true,

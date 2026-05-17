@@ -33,7 +33,8 @@ class AuthService {
     }
     const user = await User.create({
       ...userData,
-      passwordHash: userData.password // will be hashed by model hook
+      passwordHash: userData.password, // will be hashed by model hook
+      authProvider: 'local'
     });
     const tokens = await this.generateTokens(user);
     // Send verification email (noop in local dev)
@@ -57,17 +58,33 @@ class AuthService {
 
   async googleLogin(idToken, role = 'patron') {
     const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-    const ticket = await client.verifyIdToken({
-      idToken,
-      audience: process.env.GOOGLE_CLIENT_ID,
-    });
-    const payload = ticket.getPayload();
-    const { email, name, picture } = payload;
+    let payload;
+
+    try {
+      const ticket = await client.verifyIdToken({
+        idToken,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+      payload = ticket.getPayload();
+    } catch (err) {
+      throw new ApiError(401, 'GOOGLE_AUTH_FAILED', 'Google token verification failed. Please try again.');
+    }
+
+    const { sub: googleId, email, name, picture, email_verified } = payload;
 
     let user = await User.findOne({ where: { email } });
     
-    if (!user) {
-      // Create a new user if one doesn't exist
+    if (user) {
+      // If existing user logged in via Google, update their Google ID if not set
+      if (!user.googleId) {
+        await user.update({ googleId, authProvider: 'google' });
+      }
+      // Update avatar if they don't have one
+      if (!user.avatarUrl && picture) {
+        await user.update({ avatarUrl: picture });
+      }
+    } else {
+      // Create a new user from Google profile
       const username = `user_${crypto.randomBytes(4).toString('hex')}`;
       user = await User.create({
         username,
@@ -77,7 +94,9 @@ class AuthService {
         firstName: name ? name.split(' ')[0] : null,
         lastName: name ? name.split(' ').slice(1).join(' ') : null,
         avatarUrl: picture,
-        isVerified: true
+        isVerified: !!email_verified,
+        authProvider: 'google',
+        googleId
       });
     }
 

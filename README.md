@@ -126,6 +126,23 @@ CREATE DATABASE service_marketplace;
    ```
    *The client dashboard will compile and launch on `http://localhost:3000`!*
 
+### Step 4: Seed Superadmin & Google Authentication
+1. **Seed the Superadmin Account**:
+   To immediately set up the platform's root administrator with priority credentials:
+   ```bash
+   cd backend
+   node src/scripts/seed-superadmin.js
+   ```
+   *This seeds a verified superadmin user (`superadmin@moseva.com`) with unrestricted bypass role. Default password can be configured inside the seeder script.*
+
+2. **Google OAuth Integration**:
+   - Make sure your Google Identity client ID is configured in both `backend/.env` (`GOOGLE_CLIENT_ID`) and `frontend/.env` (`VITE_GOOGLE_CLIENT_ID`).
+   - Use the native, premium Google buttons rendered on the Login & Registration forms to instantly sign in or register with verified Google credentials.
+
+### Step 5: Support & DPDP Act Grievance Portal
+- **Users**: Navigate to the **Support & Grievances (DPDP)** tab in the User Dashboard to file complaints/suggestions or submit legal data erasure claims under the **Digital Personal Data Protection (DPDP) Act**.
+- **Superadmins**: Access the premium **Admin Panel** via the navigation bar to oversee System KPIs, moderate user registries, audit posted gigs, write staff logs, and instantly process data deactivation/erasure requests.
+
 ---
 
 ## 🧪 Verification & Testing

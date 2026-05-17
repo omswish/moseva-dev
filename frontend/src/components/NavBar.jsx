@@ -34,6 +34,9 @@ export default function NavBar() {
         {isAuthenticated ? (
           <>
             <Link to="/dashboard">Dashboard</Link>
+            {(user?.role === 'admin' || user?.role === 'superadmin') && (
+              <Link to="/admin" style={{ color: 'hsl(var(--primary))', fontWeight: 'bold' }}>Admin Panel</Link>
+            )}
             <Link to="/chat" style={{ position: 'relative' }}>
               Messages
               {unreadConversationsCount > 0 && (

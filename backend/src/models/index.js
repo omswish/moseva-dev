@@ -10,6 +10,8 @@ const Conversation = require('./Conversation');
 const Message = require('./Message');
 const RefreshToken = require('./RefreshToken');
 const Notification = require('./Notification');
+const Feedback = require('./Feedback');
+const DataRemovalRequest = require('./DataRemovalRequest');
 
 // --- Associations ---
 
@@ -85,6 +87,14 @@ Message.belongsTo(Booking, { foreignKey: 'bookingId', as: 'booking' });
 User.hasMany(Notification, { foreignKey: 'userId', as: 'notifications' });
 Notification.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 
+// User <-> Feedback (One-to-Many)
+User.hasMany(Feedback, { foreignKey: 'userId', as: 'feedbacks' });
+Feedback.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
+// User <-> DataRemovalRequest (One-to-Many)
+User.hasMany(DataRemovalRequest, { foreignKey: 'userId', as: 'dataRemovalRequests' });
+DataRemovalRequest.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
 module.exports = {
   sequelize,
   User,
@@ -95,5 +105,7 @@ module.exports = {
   Conversation,
   Message,
   RefreshToken,
-  Notification
+  Notification,
+  Feedback,
+  DataRemovalRequest
 };

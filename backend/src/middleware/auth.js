@@ -29,12 +29,17 @@ const authenticate = async (req, res, next) => {
 };
 
 /**
- * Middleware to authorize access based on roles
+ * Middleware to authorize access based on roles.
+ * 'superadmin' always bypasses role checks (has full application access).
  * @param {...string} allowedRoles Allowed user roles
  */
 authenticate.authorize = (...allowedRoles) => (req, res, next) => {
   if (!req.user) {
     return next(new ApiError(401, 'UNAUTHORIZED', 'Authentication required'));
+  }
+  // Superadmin bypasses all role restrictions
+  if (req.user.role === 'superadmin') {
+    return next();
   }
   if (!allowedRoles.includes(req.user.role)) {
     return next(new ApiError(403, 'FORBIDDEN', 'Insufficient permissions'));

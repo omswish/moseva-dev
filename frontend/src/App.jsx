@@ -1,5 +1,7 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import ProtectedAdminRoute from './components/ProtectedAdminRoute';
+import AdminDashboard from './pages/AdminDashboard';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProfile } from './store/slices/authSlice';
 import { fetchNotifications } from './store/slices/notificationSlice';
@@ -125,7 +127,15 @@ function App() {
               </ProtectedRoute>
             } 
           />
-        </Routes>
+                    <Route
+              path="/admin"
+              element={
+                <ProtectedAdminRoute>
+                  <AdminDashboard />
+                </ProtectedAdminRoute>
+              }
+            />
+          </Routes>
       </div>
     </Router>
   );

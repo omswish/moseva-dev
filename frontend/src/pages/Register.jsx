@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
-import { registerUser } from '../store/slices/authSlice';
+import { registerUser, loginWithGoogle } from '../store/slices/authSlice';
 
 export default function Register() {
   const [username, setUsername] = useState('');
@@ -21,6 +21,25 @@ export default function Register() {
       navigate('/dashboard');
     }
   }, [isAuthenticated, navigate]);
+
+  const handleGoogleCallback = (response) => {
+    const idToken = response.credential;
+    // Registration via Google preserves the chosen user role (patron or service partner)
+    dispatch(loginWithGoogle({ idToken, role }));
+  };
+
+  useEffect(() => {
+    if (window.google) {
+      window.google.accounts.id.initialize({
+        client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID || '98662134377-p01aj6dk19vr163pmdi0uq9d74hvqm7p.apps.googleusercontent.com',
+        callback: handleGoogleCallback,
+      });
+      window.google.accounts.id.renderButton(
+        document.getElementById("google-signup-btn"),
+        { theme: "outline", size: "large", width: 420, text: "signup_with" }
+      );
+    }
+  }, [dispatch, role]); // re-render Google button if role changes so correct role gets registered
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -127,6 +146,16 @@ export default function Register() {
             {loading ? 'Creating Account...' : 'Sign Up'}
           </button>
         </form>
+
+        <div style={{ margin: '1.5rem 0', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem' }}>
+          <span style={{ height: '1px', background: 'var(--border-glass)', flex: 1 }}></span>
+          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>OR</span>
+          <span style={{ height: '1px', background: 'var(--border-glass)', flex: 1 }}></span>
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <div id="google-signup-btn"></div>
+        </div>
 
         <div style={{ marginTop: '2rem', textAlign: 'center', fontSize: '0.9rem' }}>
           <span style={{ color: 'var(--text-secondary)' }}>Already have an account? </span>

@@ -30,6 +30,48 @@ export default function Dashboard() {
   const [deadline, setDeadline] = useState('');
   const [jobPostedSuccess, setJobPostedSuccess] = useState(false);
 
+  // Support & Grievances states
+  const [complaintType, setComplaintType] = useState('complaint');
+  const [complaintTitle, setComplaintTitle] = useState('');
+  const [complaintDesc, setComplaintDesc] = useState('');
+  const [complaintSuccess, setComplaintSuccess] = useState(false);
+
+  const [dpdpReason, setDpdpReason] = useState('');
+  const [dpdpSuccess, setDpdpSuccess] = useState(false);
+
+  const handleComplaintSubmit = async (e) => {
+    e.preventDefault();
+    if (!complaintTitle || !complaintDesc) return;
+    try {
+      await api.post('/feedback', {
+        type: complaintType,
+        title: complaintTitle,
+        description: complaintDesc
+      });
+      setComplaintTitle('');
+      setComplaintDesc('');
+      setComplaintSuccess(true);
+      setTimeout(() => setComplaintSuccess(false), 5000);
+    } catch (err) {
+      console.error('Failed to submit grievance', err);
+    }
+  };
+
+  const handleDpdpSubmit = async (e) => {
+    e.preventDefault();
+    if (!dpdpReason) return;
+    try {
+      await api.post('/dpdp/request-removal', {
+        reason: dpdpReason
+      });
+      setDpdpReason('');
+      setDpdpSuccess(true);
+      setTimeout(() => setDpdpSuccess(false), 5000);
+    } catch (err) {
+      console.error('Failed to submit DPDP request', err);
+    }
+  };
+
   useEffect(() => {
     dispatch(fetchBookings());
     
@@ -153,6 +195,14 @@ export default function Dashboard() {
             </button>
           </>
         )}
+
+        <button 
+          className={`btn ${activeTab === 'support' ? 'btn-primary' : 'btn-secondary'}`}
+          style={{ padding: '0.5rem 1.5rem', fontSize: '0.9rem' }}
+          onClick={() => setActiveTab('support')}
+        >
+          🛡️ Support & Grievances (DPDP)
+        </button>
       </div>
 
       {/* Tab Contents: Bookings */}
@@ -418,6 +468,112 @@ export default function Dashboard() {
               Submit Job Posting
             </button>
           </form>
+        </div>
+      )}
+
+      {/* Tab Contents: Support & Grievances */}
+      {activeTab === 'support' && (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2rem' }}>
+          {/* Grievance Form */}
+          <div className="glass-card">
+            <h2 style={{ marginBottom: '0.5rem' }}>Grievance Redressal Cell</h2>
+            <p style={{ marginBottom: '1.5rem', fontSize: '0.9rem' }}>Submit complaints, suggestions, or report user workflow issues directly to staff.</p>
+
+            {complaintSuccess && (
+              <div className="badge badge-success" style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', marginBottom: '1.5rem', justifyContent: 'center' }}>
+                ✓ Grievance submitted successfully! Staff will review it shortly.
+              </div>
+            )}
+
+            <form onSubmit={handleComplaintSubmit}>
+              <div className="form-group">
+                <label className="form-label">Grievance Type</label>
+                <select 
+                  className="form-control"
+                  value={complaintType}
+                  onChange={(e) => setComplaintType(e.target.value)}
+                >
+                  <option value="complaint">Complaint</option>
+                  <option value="suggestion">Suggestion / Feedback</option>
+                  <option value="other">Other Issues</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Subject / Title</label>
+                <input 
+                  type="text" 
+                  className="form-control" 
+                  placeholder="e.g. Issue with proposal acceptance workflow" 
+                  value={complaintTitle}
+                  onChange={(e) => setComplaintTitle(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Detailed Description</label>
+                <textarea 
+                  className="form-control" 
+                  rows="5"
+                  placeholder="Describe the issue, step-by-step actions, or user feedback in detail."
+                  value={complaintDesc}
+                  onChange={(e) => setComplaintDesc(e.target.value)}
+                  required
+                />
+              </div>
+
+              <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '0.85rem' }}>
+                Submit Grievance
+              </button>
+            </form>
+          </div>
+
+          {/* DPDP Portal */}
+          <div className="glass-card" style={{ borderColor: 'hsla(var(--error), 0.2)' }}>
+            <h2 style={{ marginBottom: '0.5rem', color: 'hsl(var(--error))' }}>DPDP Act Grievances</h2>
+            <p style={{ marginBottom: '1.5rem', fontSize: '0.9rem' }}>
+              Under India's <strong>Digital Personal Data Protection (DPDP) Act</strong>, you have the right to request erasure and deactivation of your personal data.
+            </p>
+
+            {dpdpSuccess && (
+              <div className="badge badge-success" style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', marginBottom: '1.5rem', justifyContent: 'center' }}>
+                ✓ Erasure request submitted successfully. Staff will process it.
+              </div>
+            )}
+
+            <form onSubmit={handleDpdpSubmit}>
+              <div className="form-group">
+                <label className="form-label">Reason for Erasure Request</label>
+                <textarea 
+                  className="form-control" 
+                  rows="6"
+                  placeholder="Explain why you wish to deactivate your account and erase your personal data under the DPDP Act."
+                  value={dpdpReason}
+                  onChange={(e) => setDpdpReason(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid var(--border-glass)', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem', fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                ⚠️ <strong>Notice:</strong> Account erasure will deactivate your profile and log you out immediately once approved by the Steward cell. This action is irreversible.
+              </div>
+
+              <button 
+                type="submit" 
+                className="btn" 
+                style={{ 
+                  width: '100%', 
+                  padding: '0.85rem',
+                  background: 'linear-gradient(135deg, hsl(var(--error)), hsl(var(--accent)))',
+                  color: '#fff',
+                  boxShadow: '0 4px 15px rgba(250, 80, 80, 0.25)'
+                }}
+              >
+                Request Personal Data Erasure
+              </button>
+            </form>
+          </div>
         </div>
       )}
 

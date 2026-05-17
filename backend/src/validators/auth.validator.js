@@ -26,7 +26,7 @@ const login = {
 
 const refresh = {
   body: Joi.object({
-    refreshToken: Joi.string().required()
+    refreshToken: Joi.string().optional().allow('', null)
   })
 };
 
