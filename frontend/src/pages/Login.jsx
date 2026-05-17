@@ -44,6 +44,9 @@ export default function Login() {
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flex: 1, padding: '2rem 0' }}>
       <div className="glass-card animate-fade-in" style={{ maxWidth: '420px', width: '100%', padding: '2.5rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
+          <img src="/logo.png" alt="Moseva Brand Logo" style={{ width: '80px', height: '80px', borderRadius: '12px', border: '1px solid var(--border-glass)', boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.3)' }} />
+        </div>
         <h2 style={{ marginBottom: '0.5rem', textAlign: 'center' }}>Welcome Back</h2>
         <p style={{ marginBottom: '2rem', fontSize: '0.9rem', textAlign: 'center' }}>Sign in to continue to Moseva</p>
         

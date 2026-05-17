@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, ActivityIndicator, Alert, ScrollView, SafeAreaView } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, ActivityIndicator, Alert, ScrollView, SafeAreaView, Image } from 'react-native';
 import { AuthContext } from '../context/AuthContext';
 
 export default function RegisterScreen({ navigation }) {
@@ -28,6 +28,9 @@ export default function RegisterScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
+        <View style={{ alignItems: 'center', marginBottom: 15 }}>
+          <Image source={require('../assets/logo.png')} style={{ width: 80, height: 80, borderRadius: 12 }} />
+        </View>
         <Text style={styles.brand}>MOSEVA</Text>
         <Text style={styles.subtitle}>Create your account</Text>
 

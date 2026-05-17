@@ -26,8 +26,9 @@ export default function NavBar() {
 
   return (
     <nav className="navbar animate-fade-in">
-      <Link to="/" className="navbar-logo">
-        MOSEVA
+      <Link to="/" className="navbar-logo" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <img src="/logo.png" alt="logo" style={{ width: '32px', height: '32px', borderRadius: '4px' }} />
+        <span>MOSEVA</span>
       </Link>
       <div className="navbar-links">
         <Link to="/marketplace">Explore Jobs</Link>
